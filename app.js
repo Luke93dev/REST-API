@@ -1,13 +1,14 @@
+require('dotenv').load();
 const express = require('express');
 const app = express();
-
-//Wypisywanie logów w konsoli
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 
-const usersRoutes = require('./api/routes/users');
+const todosRoutes = require('./api/routes/todos');
+const userRoutes = require('./api/routes/user');
 
-mongoose.connect('mongodb://Lukasz93:programista93@cluster0-shard-00-00-hwiil.mongodb.net:27017,cluster0-shard-00-01-hwiil.mongodb.net:27017,cluster0-shard-00-02-hwiil.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin');
+mongoose.connect(`mongodb://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_USER_PASSWORD}@cluster0-shard-00-00-hwiil.mongodb.net:27017,cluster0-shard-00-01-hwiil.mongodb.net:27017,cluster0-shard-00-02-hwiil.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin`);
+mongoose.Promise = global.Promise;
 
 app.use(morgan('dev'));
 
@@ -15,7 +16,6 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
-//Obsługa CORS
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', '*');
@@ -28,8 +28,8 @@ if(req.method === 'OPTIONS'){
 });
 
 
-app.use('/users', usersRoutes);
-
+app.use('/todos', todosRoutes);
+app.use("/user", userRoutes);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
@@ -45,7 +45,5 @@ app.use((error, req, res, next) => {
         }
     })
 })
-
-
 
 module.exports = app;
